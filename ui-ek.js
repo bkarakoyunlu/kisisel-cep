@@ -244,7 +244,7 @@ function kutla(h, tur) {
 UI.ayarlar = function () {
   const c = AYAR.cihaz || cihazTahmin();
   const seg = (k, ops) => `<div class="seg2" data-ayar="${k}">${ops.map(([v, a]) => `<button class="${AYAR[k] === v ? 'on' : ''}" data-v="${v}">${a}</button>`).join('')}</div>`;
-  sheet(`<h3>Ayarlar <span class="mut small" style="font-weight:600">sürüm 7</span></h3>
+  sheet(`<h3>Ayarlar <span class="mut small" style="font-weight:600">sürüm 8</span></h3>
     <div class="grp"><div class="grp-b">Profil</div><div class="hucre"><span>Adın</span><input id="s_ad" value="${esc(AYAR.ad)}" placeholder="İsteğe bağlı" style="max-width:180px;text-align:right;background:none;border:0;padding:4px"></div></div>
     <div class="grp"><div class="grp-b">Görünüm</div>
       <div class="hucre col"><span>Tema</span>${seg('tema', [['oto', 'Otomatik'], ['acik', 'Açık'], ['koyu', 'Koyu']])}</div>
@@ -280,7 +280,7 @@ function onboarding(yeniden) {
   const t = AYAR.cihaz || cihazTahmin(); let adim = 0;
   const o = document.createElement('div'); o.className = 'onb'; document.body.appendChild(o);
   const adimlar = [
-    () => `<div class="onb-hero">${halkalar([{ oran: .85, renk: '#ff2d6f' }, { oran: .65, renk: '#9cff2e' }, { oran: .45, renk: '#19e6ff' }], 16, 4)}</div><h1>Kişisel Asistan'a<br>hoş geldin</h1><p>Hedeflerin, alışkanlıkların, takvimin ve paran tek yerde. Önce birkaç küçük ayar.</p><input id="o_ad" placeholder="Adın (isteğe bağlı)" value="${esc(AYAR.ad)}">`,
+    () => `<img class="onb-app" src="icon-512.png" alt=""><h1>Blacksheep'e<br>hoş geldin</h1><p>Hedeflerin, alışkanlıkların, takvimin ve paran tek yerde. Önce birkaç küçük ayar.</p><input id="o_ad" placeholder="Adın (isteğe bağlı)" value="${esc(AYAR.ad)}">`,
     () => `<div class="onb-ic">${svgIkon('ayarlar', 56, 1.4)}</div><h1>Telefonun bu mu?</h1><p>Ekranı telefonuna göre ayarlayacağım. Sonradan Ayarlar'dan değiştirebilirsin.</p>
       <div class="onb-kart secili" data-k="evet"><b>${esc(t.model)}</b><span>${t.ust === 'ada' ? 'Dynamic Island' : t.ust === 'centik' ? 'Çentikli ekran' : 'Standart ekran'} · algılandı</span></div>
       <div class="onb-sec"><select id="o_marka">${Object.keys(MODELLER).map(m => `<option ${t.marka === m ? 'selected' : ''}>${m}</option>`).join('')}</select><select id="o_model">${MODELLER[t.marka].map(([m]) => `<option ${t.model === m ? 'selected' : ''}>${m}</option>`).join('')}</select></div>`,
