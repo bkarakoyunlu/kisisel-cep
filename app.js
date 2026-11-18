@@ -274,7 +274,7 @@ document.addEventListener('pointerdown', e => {
   BASLA = { w, x: e.clientX, y: e.clientY, id: w.dataset.id };
   BASLA.t = setTimeout(() => {
     if (!BASLA) return;
-    if (!DUZENLE) { SUPPRESS = Date.now(); BASLA = null; UI.duzenle(true); return; }
+    if (!DUZENLE) { SUPPRESS = Date.now(); const bw = BASLA.w; BASLA = null; UI.baglam ? UI.baglam(bw) : UI.duzenle(true); return; }
     surukleBasla(BASLA, e.clientX, e.clientY);
   }, DUZENLE ? 200 : 550);
 });
@@ -326,7 +326,7 @@ function yiginAc(w) {
 }
 
 /* ---------- menü öğeleri (alanlar + ayarlar + ekle) ---------- */
-const menuOgeleri = () => [{ id: 'ana', ad: 'Ana Ekran', ikon: '🏠', renk: '#d1d1d6' }, ...alanlar().map(a => ({ ...a, ad: a.kisa || a.ad })), { id: 'ayarlar', ad: 'Ayarlar', ikon: '⚙️', renk: '#8e8e93' }, { id: 'ekle', ad: 'Yeni alan', ikon: '＋', renk: '#48484f' }];
+const menuOgeleri = () => [{ id: 'ana', ad: 'Ana Ekran', ikon: '🏠', renk: '#d1d1d6' }, { id: 'ozet', ad: 'Özet', ikon: '📊', renk: '#5e5ce6' }, ...alanlar().map(a => ({ ...a, ad: a.kisa || a.ad })), { id: 'ayarlar', ad: 'Ayarlar', ikon: '⚙️', renk: '#8e8e93' }, { id: 'ekle', ad: 'Yeni alan', ikon: '＋', renk: '#48484f' }];
 
 const Dial = { kur() { Petek.kume(); }, anaya() { } };
 
@@ -335,7 +335,7 @@ const Petek = (() => {
   const el = $('#petek'), adEl = $('#petekad'); let M = [], bubs = [], pos = [], px = 0, py = 0, vx = 0, vy = 0, anim = null, sur = null, W = 0, H = 0;
   const S = 88, YON = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
   function hexler(n) { const out = [[0, 0]]; for (let k = 1; out.length < n; k++) { let q = -k, r = k; for (let d = 0; d < 6; d++) for (let j = 0; j < k; j++) { out.push([q, r]); q += YON[d][0]; r += YON[d][1]; } } return out.slice(0, n).map(([q, r]) => [S * (q + r / 2), S * r * 0.866]); }
-  function kur() { bubs.forEach(b => b.remove()); M = menuOgeleri().filter(m => m.id !== 'ana'); pos = hexler(M.length); bubs = M.map((m, i) => { const b = document.createElement('div'); b.className = 'bub' + (m.id === 'ekle' ? ' ekle' : ''); b.style.setProperty('--c', m.renk); b.textContent = m.ikon; b.dataset.i = i; el.appendChild(b); return b; }); }
+  function kur() { bubs.forEach(b => b.remove()); M = menuOgeleri().filter(m => m.id !== 'ana'); pos = hexler(M.length); bubs = M.map((m, i) => { const b = document.createElement('div'); b.className = 'bub' + (m.id === 'ekle' ? ' ekle' : ''); b.style.setProperty('--c', m.renk); b.innerHTML = typeof ikonHtml === 'function' ? ikonHtml(m) : m.ikon; b.dataset.i = i; el.appendChild(b); return b; }); }
   function ciz() {
     W = el.clientWidth; H = el.clientHeight; const cx = W / 2, cy = H / 2 + 10, R0 = Math.min(W, H) * 0.27, RM = Math.min(W, H) * 0.5;
     let en = -1, az = 1e9;
@@ -359,7 +359,7 @@ const Petek = (() => {
   const bitir = e => {
     if (!sur) return; const s = sur; sur = null; el.style.transition = '';
     if (s.mod === 'kapa') { el.style.transform = ''; if (e.clientY - s.y > 90) kapat(); return; }
-    if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < 8) { if (s.hedef) { const m = M[+s.hedef.dataset.i]; s.hedef.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(1.6)' }, { filter: 'brightness(1)' }], 250); setTimeout(() => { kapat(); UI.bolum(m.id); }, 150); } return; }
+    if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < 8) { if (s.hedef) { const m = M[+s.hedef.dataset.i]; s.hedef.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(1.6)' }, { filter: 'brightness(1)' }], 250); const r = s.hedef.getBoundingClientRect(); setTimeout(() => { kapat(); UI.bolum(m.id, r); }, 120); } return; }
     atalet();
   };
   el.addEventListener('pointerup', bitir); el.addEventListener('pointercancel', bitir);
@@ -456,7 +456,7 @@ const UI = {
       <label>Ne zaman?</label><input id="kzaman" type="datetime-local" value="${yerelISO().slice(0, 16)}">
       <button class="btn" style="margin-top:16px;background:${renk(h)}" onclick="UI.kayitKaydet('${hid}')">Kaydet</button>`);
   },
-  kayitKaydet(hid) { const z = val('kzaman'); seansEkle(hid, val('kdk'), val('knot'), z ? z + ':00' : yerelISO()); kapat(); toast('Kaydedildi 💪'); ILK = true; ciz(); },
+  kayitKaydet(hid) { const h = hedefBul(hid), once = h ? haftaOran(h) : 0; const z = val('kzaman'); seansEkle(hid, val('kdk'), val('knot'), z ? z + ':00' : yerelISO()); kapat(); ILK = true; ciz(); const sonra = h ? haftaOran(h) : 0; if (h && h.haftalikSeans && Math.floor(sonra) > Math.floor(once) && typeof kutla === 'function') setTimeout(() => kutla(h, Math.floor(sonra)), 450); else toast('Kaydedildi 💪'); },
   harcama(on = {}) {
     const k = D.finans.kategoriler || VARSAYILAN.finans.kategoriler;
     sheet(`<h3>💳 Harcama</h3><label>Tutar (₺)</label><input id="ht" type="number" inputmode="decimal" value="${esc(on.tutar || '')}">
