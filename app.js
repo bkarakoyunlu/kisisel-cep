@@ -422,7 +422,7 @@ const UI = {
   },
   harcamaKaydet() { const t = parseFloat(val('ht').replace(',', '.')); if (!t) return toast('Tutar gir'); harcamaEkle(t, ($('#hkat .chip.on') || {}).textContent || 'Diğer', val('hn')); kapat(); toast(`${tl(t)} kaydedildi`); },
   ayarlar() {
-    sheet(`<h3>⚙️ Ayarlar</h3>
+    sheet(`<h3>⚙️ Ayarlar <span class="mut small" style="font-weight:600">sürüm 5</span></h3>
       <h4>Ana ekran</h4><div class="chips"><button class="chip" onclick="UI.kapat();UI.duzenle(true)">✎ Düzenle</button><button class="chip" onclick="UI.kapat();UI.duzenle(true);setTimeout(UI.galeri,400)">＋ Widget ekle</button><button class="chip" onclick="if(confirm('Ana ekran varsayılana dönsün mü?')){UIA.yerlesim=varsayilanYerlesim();kaydetUI();UI.kapat();ILK=true;ciz()}">↺ Varsayılana dön</button></div>
       <h4>Bağlantı</h4><p class="mut small" style="margin-top:0">Verilerin <b>özel</b> GitHub reponda. Anahtar sadece bu cihazda saklanır.</p>
       <label>GitHub kullanıcı adı</label><input id="c_o" value="${esc(CFG.owner)}" autocapitalize="off">
