@@ -1,11 +1,11 @@
 {
-  "name": "Blacksheep",
-  "short_name": "Blacksheep",
+  "name": "blacksheep",
+  "short_name": "blacksheep",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#12121c",
-  "theme_color": "#12121c",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "lang": "tr",
   "icons": [
     {
