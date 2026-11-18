@@ -2,7 +2,7 @@
    Arayüzden bağımsızdır; tüm bölümler (ana sayfa, spor, gitar, dil…) bunu kullanır. */
 'use strict';
 
-const DOSYALAR = ['hedefler', 'kayitlar', 'finans', 'kisiler', 'plan', 'icerik'];
+const DOSYALAR = ['hedefler', 'kayitlar', 'finans', 'kisiler', 'alanlar', 'plan', 'icerik'];
 const SALT_OKUNUR = ['plan', 'icerik'];
 const LS = { cfg: 'ka_cfg', data: 'ka_data', dirty: 'ka_dirty', gun: 'ka_gun', son: 'ka_son', ui: 'ka_ui' };
 const GUNLER = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
@@ -15,6 +15,20 @@ const RENKLER = {
   sarki: '#bf5af2', hobi: '#0a84ff', lego: '#ff453a'
 };
 const YEDEK_RENK = ['#ff2d6f', '#9cff2e', '#19e6ff', '#ff9500', '#bf5af2', '#ffd60a', '#0a84ff', '#ff453a', '#64d2ff', '#30d158'];
+
+/* İç uygulamalar (alanlar). Kullanıcı + ile yenilerini ekler (data/alanlar.json) */
+const ALAN_VARS = [
+  { id: 'spor', ad: 'Spor & Hareket', kisa: 'Spor', ikon: '🏃', renk: '#ff2d6f' },
+  { id: 'saglik', ad: 'Sağlık & Beslenme', kisa: 'Sağlık', ikon: '🍎', renk: '#64d2ff' },
+  { id: 'muzik', ad: 'Müzik', kisa: 'Müzik', ikon: '🎸', renk: '#ff9500' },
+  { id: 'okuma', ad: 'Okuma', kisa: 'Okuma', ikon: '📚', renk: '#9cff2e' },
+  { id: 'dil', ad: 'Yabancı Dil', kisa: 'Dil', ikon: '🌍', renk: '#19e6ff' },
+  { id: 'takvim', ad: 'Takvim', kisa: 'Takvim', ikon: '📅', renk: '#ff3b30' },
+  { id: 'film', ad: 'Film & Dizi', kisa: 'Film', ikon: '🎬', renk: '#ffd60a' },
+  { id: 'hobi', ad: 'Hobiler', kisa: 'Hobi', ikon: '🎮', renk: '#0a84ff' },
+  { id: 'para', ad: 'Para', kisa: 'Para', ikon: '💳', renk: '#30d158' }
+];
+const HEDEF_ALAN = { spor: 'spor', gitar: 'muzik', sarki: 'muzik', okuma: 'okuma', ingilizce: 'dil', almanca: 'dil', hobi: 'hobi', lego: 'hobi' };
 
 /* ---------- yardımcılar ---------- */
 const $ = s => document.querySelector(s);
@@ -51,7 +65,7 @@ function birlestir(uzak, yerel) {
 
 /* ---------- veri ---------- */
 const VARSAYILAN = {
-  hedefler: [], kayitlar: [], kisiler: [], plan: {}, icerik: {},
+  hedefler: [], kayitlar: [], kisiler: [], alanlar: [], plan: {}, icerik: {},
   finans: { maas: { tutar: 0, gun: 1 }, kategoriler: ['Kahve', 'Yemek', 'Market', 'Ulaşım', 'Eğlence', 'Müzik', 'Hobi', 'Giyim', 'Fatura', 'Diğer'], harcamalar: [], abonelikler: [], giderler: [], borclar: [], dilekler: [] }
 };
 let D = oku(LS.data, null) || JSON.parse(JSON.stringify(VARSAYILAN));
@@ -163,6 +177,10 @@ function bugunPlani() {
   }).filter(x => x.kalan > 0 && !yapildi.has(x.h.id)).sort((a, b) => b.puan - a.puan);
   return { liste: l.slice(0, { yogun: 1, normal: 3, bos: 6 }[kapasite()] || 3), yapildi };
 }
+
+const alanlar = () => ALAN_VARS.concat(canli(D.alanlar));
+const alanBul = id => alanlar().find(a => a.id === id);
+const alanOf = h => h.alan || HEDEF_ALAN[h.id] || null;
 
 /* ---------- ortak eylemler ---------- */
 function seansEkle(hid, dk, not = '', tarih = yerelISO(), kaynak = 'telefon') {
