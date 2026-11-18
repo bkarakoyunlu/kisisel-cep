@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <title>blacksheep</title>
+<script>try{var a=JSON.parse(localStorage.getItem('ka_ayar')||'{}'),t=a.tema||'oto';if(t==='oto')t=matchMedia('(prefers-color-scheme: dark)').matches?'koyu':'acik';document.documentElement.dataset.tema=t;if(a.anim==='az')document.documentElement.classList.add('az-anim')}catch(e){}</script>
 <style>
 :root,[data-tema=koyu]{
   --bg:#000; --card:#16161a; --card2:#222228; --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.13);
@@ -333,9 +334,24 @@ textarea{min-height:76px;resize:vertical}
 .tm-oto{background:linear-gradient(135deg,#f2f2f7 50%,#000 50%)}.tm-oto i{background:linear-gradient(135deg,#fff 50%,#222228 50%)}
 .onb-alt{display:flex;flex-direction:column;gap:6px}
 .onb-alt .noktalar{margin-bottom:10px}
+
+/* açılış animasyonu (~1 sn): yün topları dönerek toplanır, sonra ortadan büyüyerek uygulama açılır */
+.splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;animation:spCik .32s ease-in .78s forwards}
+.splash svg{width:130px;height:108px;overflow:visible;animation:spBuyu .38s cubic-bezier(.55,0,.8,.2) .72s forwards}
+.sp-don{transform-box:view-box;transform-origin:570px 575px;animation:spDon .72s cubic-bezier(.2,.85,.25,1) both}
+.sp-t{transform-box:fill-box;transform-origin:center;animation:spTop .45s cubic-bezier(.3,1.6,.5,1) both}
+.sp-m{transform-box:fill-box;transform-origin:center;animation:spTop .4s cubic-bezier(.3,1.5,.5,1) .28s both}
+.sp-kontur{animation:spKon .3s ease-out .3s both}
+@keyframes spDon{from{transform:rotate(-300deg) scale(.35)}to{transform:none}}
+@keyframes spTop{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes spKon{from{opacity:0}to{opacity:1}}
+@keyframes spBuyu{to{transform:scale(9);opacity:0}}
+@keyframes spCik{to{opacity:0;visibility:hidden}}
+.az-anim .splash{display:none}
 </style>
 </head>
 <body class="ilk">
+<div class="splash" id="splash"><svg viewBox="280 330 580 480"><g class="sp-don"><g class="sp-kontur"><circle cx="400" cy="520" r="105" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="500" cy="455" r="110" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="625" cy="455" r="110" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="730" cy="525" r="105" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="745" cy="630" r="100" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="640" cy="690" r="105" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="515" cy="695" r="105" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="405" cy="630" r="100" fill="#fff" stroke="#fff" stroke-width="18"/><circle cx="570" cy="575" r="170" fill="#fff" stroke="#fff" stroke-width="18"/></g><circle class="sp-t" style="animation-delay:0.000s" cx="400" cy="520" r="105" fill="#ff2d6f"/><circle class="sp-t" style="animation-delay:0.035s" cx="500" cy="455" r="110" fill="#ff9500"/><circle class="sp-t" style="animation-delay:0.070s" cx="625" cy="455" r="110" fill="#ffd60a"/><circle class="sp-t" style="animation-delay:0.105s" cx="730" cy="525" r="105" fill="#9cff2e"/><circle class="sp-t" style="animation-delay:0.140s" cx="745" cy="630" r="100" fill="#19e6ff"/><circle class="sp-t" style="animation-delay:0.175s" cx="640" cy="690" r="105" fill="#0a84ff"/><circle class="sp-t" style="animation-delay:0.210s" cx="515" cy="695" r="105" fill="#bf5af2"/><circle class="sp-t" style="animation-delay:0.245s" cx="405" cy="630" r="100" fill="#ff3b30"/><circle class="sp-m" cx="570" cy="575" r="170" fill="#ff6ac1"/></g></svg></div>
 <div class="top" id="topbar">
   <div><div class="tarih" id="tarih"></div><h1 id="selam">Merhaba</h1></div>
   <div class="sag">
