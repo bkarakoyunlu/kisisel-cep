@@ -193,6 +193,18 @@ const WT = {
   }
 };
 
+const YIGIN_VARS = [{ tur: 'isi', boyut: 'm' }, { tur: 'grafik', boyut: 'm', varyant: 'hafta' }, { tur: 'para', boyut: 'm' }, { tur: 'takvim', boyut: 'l' }];
+const ACIKLAMA = {
+  halkalar: 'Tüm hedeflerin tek bakışta. Bir tam tur haftalık hedefin; aşınca tur atmaya devam eder.',
+  seri: 'Üst üste çalıştığın gün sayısı ve son iki hafta.', sure: 'Bugün ve bu hafta ne kadar çalıştığın.',
+  hedef: 'Tek bir hedefin halkası, haftalık grafiği ve sıradaki kilometre taşı. Dokununca kayıt açılır.',
+  siradaki: 'Bugünkü kapasitene göre yapman gerekenler.', grafik: 'Zamanını neye ne kadar ayırdığın, renk renk.',
+  takvim: 'Bugün, bu hafta ya da tüm ay; yapılan ve planlanan seanslar, özel günler.', ozelgun: 'Yaklaşan doğum günleri ve özel günler.',
+  basari: 'Kazandığın rozetler ve haftanın başarıları.', para: 'Ay sonuna kalan, harcamalar ve hızlı harcama ekleme.',
+  kelime: 'Her gün yeni bir yabancı kelime; dokununca anlamı.', isi: 'GitHub tarzı çalışma haritası.', ilham: 'Şarkılarına ilham verecek hikayeler.',
+  yigin: 'Birkaç widget\'ı tek yerde toplar; dokununca 3B açılır.'
+};
+
 /* ---------- rozetler ---------- */
 function rozetler() {
   const s = seanslar(), dk = s.reduce((a, k) => a + (+k.dk || 0), 0), es = enUzunSeri(), kq = kotali(), tamam = kq.filter(h => haftaOran(h) >= 1).length;
@@ -213,7 +225,7 @@ function varsayilanYerlesim() {
   { tur: 'siradaki', boyut: 'm' }];
   ['gitar', 'okuma', 'ingilizce', 'spor'].forEach(id => y.push({ tur: 'hedef', boyut: 'xs', ref: id }));
   y.push({ tur: 'grafik', boyut: 'm', varyant: 'gun' }, { tur: 'takvim', boyut: 'm' }, { tur: 'basari', boyut: 'm' }, { tur: 'kelime', boyut: 's' },
-    { tur: 'yigin', boyut: 's', ref: [{ tur: 'isi', boyut: 'm' }, { tur: 'grafik', boyut: 'm', varyant: 'hafta' }, { tur: 'para', boyut: 'm' }, { tur: 'takvim', boyut: 'l' }] },
+    { tur: 'yigin', boyut: 's', ref: YIGIN_VARS },
     { tur: 'hedef', boyut: 'm', ref: 'gitar' }, { tur: 'para', boyut: 'm' }, { tur: 'isi', boyut: 'm' });
   return y.map(x => ({ id: uid(), ...x }));
 }
@@ -233,7 +245,7 @@ function hucre() { const m = $('#main'); const W = Math.min(520, window.innerWid
 function ciz() {
   const d = new Date(), s = d.getHours();
   $('#tarih').textContent = `${GUNLER[d.getDay()]}, ${d.getDate()} ${AYLAR[d.getMonth()]}`;
-  $('#selam').textContent = s < 5 ? 'İyi geceler' : s < 12 ? 'Günaydın' : s < 18 ? 'İyi günler' : 'İyi akşamlar';
+  $('#selam').textContent = $('#kbarad').textContent = s < 5 ? 'İyi geceler' : s < 12 ? 'Günaydın' : s < 18 ? 'İyi günler' : 'İyi akşamlar';
   let h = '';
   if (!CFG.token) h += `<div class="w w-m" style="margin-bottom:12px;height:auto"><div class="wh"><h2>👋 Kurulum</h2></div><p class="mut" style="margin:0 0 12px">Verilerinin özel GitHub repona kaydedilmesi için anahtarını gir.</p><button class="btn" onclick="UI.ayarlar()">Kurulum</button></div>`;
   h += `<div class="grid" id="grid">${UIA.yerlesim.map(w => wHtml(w)).join('')}</div>`;
@@ -253,6 +265,7 @@ function durum() { const dot = $('#syncdot'); if (!dot) return; const b = Object
 Olay.addEventListener('veri', () => { if (!ILK && !SURUKLE) ciz(); });
 Olay.addEventListener('durum', durum);
 window.addEventListener('resize', hucre);
+window.addEventListener('scroll', () => { const y = window.scrollY, k = $('#kbar'); if (!k) return; const o = Math.max(0, Math.min(1, (y - 40) / 30)); k.style.opacity = o; k.style.pointerEvents = o > .5 ? 'auto' : 'none'; $('#topbar').style.opacity = 1 - o; }, { passive: true });
 
 /* ---------- düzenleme: uzun bas → düzenle, basılı tut ve sürükle → taşı ---------- */
 let BASLA = null, SURUKLE = null;
@@ -370,6 +383,14 @@ const Petek = (() => {
 function sheet(html, kap) { $('#sheet').innerHTML = '<div class="grab"></div>' + html; $('#sheet').scrollTop = 0; $('#sheetbg').classList.add('on'); sheet.kap = kap; }
 function kapat() { $('#sheetbg').classList.remove('on'); const f = sheet.kap; sheet.kap = null; f && f(); }
 $('#sheetbg').addEventListener('click', e => { if (e.target.id === 'sheetbg') kapat(); });
+(() => { // iOS gibi: sayfayı aşağı çekerek kapat
+  const sh = $('#sheet'); let t = null;
+  sh.addEventListener('touchstart', e => { if (sh.scrollTop > 0 || e.target.closest('.car,input,textarea')) return; t = { y: e.touches[0].clientY, x: e.touches[0].clientX, dy: 0, aktif: false }; }, { passive: true });
+  sh.addEventListener('touchmove', e => { if (!t) return; const dy = e.touches[0].clientY - t.y, dx = e.touches[0].clientX - t.x;
+    if (!t.aktif) { if (dy > 8 && dy > Math.abs(dx)) t.aktif = true; else if (Math.abs(dx) > 8 || dy < -8) { t = null; return; } }
+    if (t.aktif) { e.preventDefault(); t.dy = dy; sh.style.transition = 'none'; sh.style.transform = `translateY(${dy}px)`; } }, { passive: false });
+  sh.addEventListener('touchend', () => { if (!t) return; const k = t.aktif && t.dy > 110; t = null; sh.style.transition = ''; sh.style.transform = ''; if (k) kapat(); });
+})();
 const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
 function segSec(el) { el.parentNode.querySelectorAll('.chip,button').forEach(c => c.classList.remove('on')); el.classList.add('on'); }
 
@@ -388,19 +409,43 @@ const UI = {
   wBoy(id) { const w = UIA.yerlesim.find(x => x.id === id), b = WT[w.tur].boyutlar; w.boyut = b[(b.indexOf(w.boyut) + 1) % b.length]; kaydetUI(); ILK = true; ciz(); },
   wVar(id) { const w = UIA.yerlesim.find(x => x.id === id), v = WT[w.tur].varyantlar; w.varyant = v[(v.indexOf(w.varyant || v[0]) + 1) % v.length]; kaydetUI(); ILK = true; ciz(); },
   galeri() {
-    const gruplar = {}; Object.entries(WT).forEach(([k, t]) => { if (k === 'hedef') return; (gruplar[t.grup] = gruplar[t.grup] || []).push(k); });
-    const onizle = (tur, boyut, ref, varyant) => { const eski = ILK; ILK = false; const h = `<div class="gal"><div class="grid">${wHtml({ id: 'onizle', tur, boyut, ref, varyant }, false)}</div></div>`; ILK = eski; return h; };
-    let h = `<h3>Widget ekle</h3><p class="mut small" style="margin-top:0">Boyutu seç, ana ekranın en üstüne eklenir. Sonra sürükleyip yerleştir.</p>`;
+    const eski = ILK; ILK = false;
+    const kart = (tur, boyut, ref, varyant, ad, alt, onclick) => { const z = { xs: 1.3, s: 0.92, m: 0.46, l: 0.38 }[boyut], kol = { xs: 1, s: 2, m: 4, l: 4 }[boyut];
+      return `<div class="gk" onclick="${onclick}"><div class="gkp"><div class="grid" style="zoom:${z};--kol:${kol};width:${boyut === 'xs' ? 'var(--cell)' : boyut === 's' ? 'calc(var(--cell)*2 + var(--gap))' : 'calc(var(--cell)*4 + var(--gap)*3)'};flex:none">${wHtml({ id: 'g', tur, boyut, ref, varyant }, false)}</div></div><b>${esc(ad)}</b><span>${esc(alt)}</span></div>`; };
+    let h = `<div class="row between"><h3>Widget'lar</h3><button class="pillbtn" onclick="UI.kapat()">Vazgeç</button></div><p class="mut small" style="margin-top:0">Bir widget seç; boyutlarını ana ekranda nasıl duracağıyla birlikte göreceksin.</p>`;
+    const gruplar = {}; Object.entries(WT).forEach(([k, t]) => { if (k !== 'hedef') (gruplar[t.grup] = gruplar[t.grup] || []).push(k); });
     for (const [g, liste] of Object.entries(gruplar)) {
-      h += `<h4>${esc(g)}</h4>`;
-      for (const k of liste) { const t = WT[k]; const ref = k === 'yigin' ? varsayilanYerlesim().find(x => x.tur === 'yigin').ref : undefined;
-        h += `<div class="row between" style="margin-top:6px"><b>${esc(t.ad)}</b><div class="chips" style="--c:${t.renk}">${t.boyutlar.map(b => `<button class="chip" onclick='UI.wEkle(${JSON.stringify({ tur: k, boyut: b, ref, varyant: t.varyantlar ? t.varyantlar[0] : undefined })})'>${BOY_AD[b]}</button>`).join('')}</div></div>${onizle(k, t.boyutlar.includes('s') ? 's' : t.boyutlar[0], ref, t.varyantlar && t.varyantlar[0])}`; }
+      h += `<h4>${esc(g)}</h4><div class="gks">${liste.map(k => { const t = WT[k], b = t.boyutlar.includes('s') ? 's' : t.boyutlar[0]; return kart(k, b, k === 'yigin' ? YIGIN_VARS : undefined, t.varyantlar && t.varyantlar[0], t.ad, t.boyutlar.map(x => BOY_AD[x]).join(' · '), `UI.wDetay('${k}')`); }).join('')}</div>`;
     }
-    h += `<h4>Hedefler</h4>`;
-    for (const x of hedefler()) h += `<div class="row between" style="margin-top:6px"><b>${esc(x.ikon)} ${esc(x.ad)}</b><div class="chips" style="--c:${renk(x)}">${WT.hedef.boyutlar.map(b => `<button class="chip" onclick='UI.wEkle(${JSON.stringify({ tur: 'hedef', boyut: b, ref: x.id })})'>${BOY_AD[b]}</button>`).join('')}</div></div>`;
-    sheet(h);
+    h += `<h4>Hedefler</h4><div class="gks">${hedefler().map(x => kart('hedef', 's', x.id, undefined, x.ad, 'Mini · Küçük · Orta', `UI.wDetay('hedef','${x.id}')`)).join('')}</div>`;
+    ILK = eski; sheet(h);
   },
-  wEkle(w) { UIA.yerlesim.unshift({ id: uid(), ...w }); kaydetUI(); kapat(); ILK = true; ciz(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Widget eklendi ✨'); },
+  wDetay(tur, ref) {
+    const t = WT[tur]; if (tur === 'yigin') ref = YIGIN_VARS;
+    const secenek = []; t.boyutlar.forEach(b => (t.varyantlar && b !== 'xs' ? t.varyantlar : [undefined]).forEach(v => secenek.push({ tur, boyut: b, ref, varyant: v })));
+    const SATIR = { xs: 1, s: 2, m: 2, l: 4 }, KUL = { xs: 1, s: 4, m: 8, l: 16 }, OLCU = { xs: '1×1', s: '2×2', m: '4×2', l: '4×4' };
+    const eski = ILK; ILK = false;
+    const slaytlar = secenek.map((w, i) => `<div class="slide" data-i="${i}"><div class="sayfa"><div class="grid">${wHtml({ id: 'd' + i, ...w }, false)}${'<div class="w w-xs hayalet"></div>'.repeat(4 * SATIR[w.boyut] - KUL[w.boyut])}</div></div><div class="sad"><b>${BOY_AD[w.boyut]}</b> <span class="mut">${OLCU[w.boyut]}${w.varyant ? ' · ' + t.varAd[w.varyant] : ''}</span></div></div>`).join('');
+    ILK = eski;
+    const h = tur === 'hedef' ? hedefBul(ref) : null; const renkK = h ? renk(h) : t.renk;
+    sheet(`<div class="row between"><button class="pillbtn" onclick="UI.galeri()">‹ Widget'lar</button><span></span></div>
+      <div style="text-align:center;margin:10px 0 2px"><h3 style="margin:0">${esc(h ? h.ikon + ' ' + h.ad : t.ad)}</h3><div class="mut small" style="margin-top:4px;padding:0 20px">${esc(ACIKLAMA[tur] || '')}</div></div>
+      <div class="car" id="car">${slaytlar}</div>
+      <div class="noktalar" id="nokta">${secenek.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>
+      <button class="btn" style="background:${renkK};margin-top:6px" onclick="UI.wEkleSec()">＋ Widget Ekle</button>
+      <p class="mut small" style="text-align:center;margin:10px 0 0">Kesik çizgiler, widget'ın yanında ana ekranda kalan boş yeri gösterir.</p>`);
+    UI._sec = secenek; const car = $('#car');
+    car.addEventListener('scroll', () => { const i = Math.round(car.scrollLeft / car.clientWidth); document.querySelectorAll('#nokta i').forEach((n, j) => n.classList.toggle('on', i === j)); car.dataset.i = i; }, { passive: true });
+    requestAnimationFrame(() => animasyon($('#sheet')));
+  },
+  wEkleSec() { const i = +($('#car').dataset.i || 0); UI.wEkle(UI._sec[i]); },
+  wEkle(w) {
+    const yeni = { id: uid(), ...w }; UIA.yerlesim.unshift(yeni); kaydetUI(); kapat();
+    DUZENLE = true; document.body.classList.add('duzenle-modu'); ILK = false; ciz(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    const el = document.querySelector(`[data-id="${yeni.id}"]`);
+    if (el) { el.animate([{ transform: 'scale(.35) translateY(-80px)', opacity: 0, filter: 'blur(6px)' }, { transform: 'scale(1.06)', opacity: 1, filter: 'blur(0)', offset: .65 }, { transform: 'scale(.98)', offset: .85 }, { transform: 'scale(1)' }], { duration: 700, delay: 250, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }); setTimeout(() => animasyon(el), 300); }
+    toast('Eklendi · basılı tutup yerine sürükle');
+  },
   kapasite(k, etk) { const g = oku(LS.gun, {}); g[gunStr()] = { kapasite: k, etkinlik: !!etk }; yaz(LS.gun, g); ciz(); if (etk && k === 'yogun') toast('Tamam, bugün hafif tutuyorum 🎉'); },
   kayit(hid) {
     const h = hedefBul(hid); if (!h) return; const dk = h.seansDk || 20;
@@ -422,7 +467,7 @@ const UI = {
   },
   harcamaKaydet() { const t = parseFloat(val('ht').replace(',', '.')); if (!t) return toast('Tutar gir'); harcamaEkle(t, ($('#hkat .chip.on') || {}).textContent || 'Diğer', val('hn')); kapat(); toast(`${tl(t)} kaydedildi`); },
   ayarlar() {
-    sheet(`<h3>⚙️ Ayarlar <span class="mut small" style="font-weight:600">sürüm 5</span></h3>
+    sheet(`<h3>⚙️ Ayarlar <span class="mut small" style="font-weight:600">sürüm 6</span></h3>
       <h4>Ana ekran</h4><div class="chips"><button class="chip" onclick="UI.kapat();UI.duzenle(true)">✎ Düzenle</button><button class="chip" onclick="UI.kapat();UI.duzenle(true);setTimeout(UI.galeri,400)">＋ Widget ekle</button><button class="chip" onclick="if(confirm('Ana ekran varsayılana dönsün mü?')){UIA.yerlesim=varsayilanYerlesim();kaydetUI();UI.kapat();ILK=true;ciz()}">↺ Varsayılana dön</button></div>
       <h4>Bağlantı</h4><p class="mut small" style="margin-top:0">Verilerin <b>özel</b> GitHub reponda. Anahtar sadece bu cihazda saklanır.</p>
       <label>GitHub kullanıcı adı</label><input id="c_o" value="${esc(CFG.owner)}" autocapitalize="off">

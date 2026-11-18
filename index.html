@@ -161,6 +161,7 @@ main{max-width:520px;margin:0 auto;padding:4px 14px calc(66px + env(safe-area-in
 .badge{display:none;position:absolute;top:6px;z-index:3;width:26px;height:26px;border-radius:50%;border:0;font-size:15px;font-weight:800;cursor:pointer;line-height:26px;padding:0;text-align:center;background:#3a3a40;color:#fff}
 .duzenle-modu .badge{display:block}
 .b-sil{left:6px}.b-boy{right:6px;font-size:12px}.b-var{right:36px;font-size:12px}
+.w-xs .badge{width:20px;height:20px;line-height:20px;font-size:10px;top:3px}.w-xs .b-sil{left:3px;font-size:13px}.w-xs .b-boy{right:3px}
 .duzenle-modu .w:not(.w-xs) .wh{padding:0 52px 0 26px}
 .w.ph{opacity:.15}
 .clone{position:fixed;z-index:30;pointer-events:none;transform:scale(1.06);box-shadow:0 20px 50px rgba(0,0,0,.7);transition:none!important;animation:none!important;margin:0}
@@ -196,6 +197,28 @@ main{max-width:520px;margin:0 auto;padding:4px 14px calc(66px + env(safe-area-in
 .petek .pad div{font-size:12px;color:var(--mut);font-weight:600}
 .petek .ad{position:absolute;left:0;right:0;bottom:calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:18px;font-weight:800;letter-spacing:-.3px;pointer-events:none;z-index:2}
 
+/* galeri ve boyut seçici (iOS widget galerisi gibi) */
+.gks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gk{background:#0e0e11;border-radius:20px;padding:12px 10px 10px;cursor:pointer;transition:transform .2s}
+.gk:active{transform:scale(.96)}
+.gkp{height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+.gkp .grid{grid-template-columns:repeat(var(--kol,4),1fr)}
+.gk b{display:block;font-size:13.5px;margin-top:8px}.gk span{font-size:11px;color:var(--mut)}
+.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:14px -18px 0;-webkit-overflow-scrolling:touch}
+.car::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:center;padding:0 18px}
+.sayfa{background:radial-gradient(circle at 50% 0%,#1d1d26,#0b0b0e);border-radius:24px;padding:14px;min-height:calc(var(--cell)*4 + var(--gap)*3 + 28px);display:flex;align-items:center}
+.sayfa .grid{width:100%}
+.hayalet{background:transparent!important;border:1.5px dashed rgba(255,255,255,.12);box-shadow:none}
+.sad{text-align:center;margin-top:10px;font-size:14px}
+.noktalar{display:flex;justify-content:center;gap:7px;margin:10px 0 12px}
+.noktalar i{width:7px;height:7px;border-radius:50%;background:#48484f;transition:all .3s}
+.noktalar i.on{background:#fff;width:18px;border-radius:9px}
+
+/* iOS büyük başlık: kaydırınca bulanık küçük üst bar */
+.kbar{position:fixed;left:0;right:0;top:0;z-index:7;padding:calc(max(env(safe-area-inset-top),12px) + 4px) 0 10px;text-align:center;background:rgba(18,18,22,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid rgba(255,255,255,.08);opacity:0;pointer-events:none;transition:opacity .15s}
+.kbar b{font-size:16px;font-weight:700}
+
 /* alt pencere */
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:20;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .sheet-bg.on{opacity:1;pointer-events:auto}
@@ -215,8 +238,8 @@ textarea{min-height:76px;resize:vertical}
 .renkler button.on{border-color:#fff}
 .gal{background:#0e0e11;border-radius:18px;padding:12px;margin:8px 0 4px}
 .gal .grid{pointer-events:none}
-.toast{position:fixed;left:50%;top:calc(8px + max(env(safe-area-inset-top),12px));transform:translate(-50%,-300%);background:#2a2a30;padding:11px 18px;border-radius:99px;z-index:40;transition:transform .35s cubic-bezier(.2,.8,.2,1);font-size:14px;font-weight:600;white-space:nowrap}
-.toast.on{transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;top:calc(6px + max(env(safe-area-inset-top),12px));transform:translate(-50%,-10px) scale(.35,.5);opacity:0;background:#000;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.6);padding:12px 20px;border-radius:99px;z-index:40;transition:transform .5s cubic-bezier(.3,1.35,.4,1),opacity .25s;font-size:14px;font-weight:600;white-space:nowrap;color:#fff}
+.toast.on{transform:translate(-50%,0) scale(1);opacity:1}
 .empty{color:var(--mut);text-align:center;padding:8px 0;font-size:13px}
 </style>
 </head>
@@ -230,6 +253,7 @@ textarea{min-height:76px;resize:vertical}
     <button class="pillbtn on editonly" onclick="UI.duzenle(false)">Bitti</button>
   </div>
 </div>
+<div class="kbar" id="kbar"><b id="kbarad"></b></div>
 <main id="main"></main>
 <div class="tutfade"></div><div class="tutamak" id="tutamak" aria-label="Uygulamalar"><div class="kume" id="kume"></div></div>
 <div class="petek" id="petek"><div class="pad" id="petekpad"><div class="grab"></div><div>Uygulamalar · kapatmak için aşağı kaydır</div></div><div class="ad" id="petekad"></div></div>
