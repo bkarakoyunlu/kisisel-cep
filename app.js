@@ -315,44 +315,7 @@ function yiginAc(w) {
 /* ---------- menü öğeleri (alanlar + ayarlar + ekle) ---------- */
 const menuOgeleri = () => [{ id: 'ana', ad: 'Ana Ekran', ikon: '🏠', renk: '#d1d1d6' }, ...alanlar().map(a => ({ ...a, ad: a.kisa || a.ad })), { id: 'ayarlar', ad: 'Ayarlar', ikon: '⚙️', renk: '#8e8e93' }, { id: 'ekle', ad: 'Yeni alan', ikon: '＋', renk: '#48484f' }];
 
-/* ---------- döner menü: rulet gibi döner, sadece dokununca açar; yukarı kaydırınca küre ---------- */
-const Dial = (() => {
-  const el = $('#dial'), arc = $('#arc'), lbl = $('#dlbl');
-  let M = [], items = [], ADIM = 30, rot = 0, R = 0, cx = 0, cy = 0, sur = null, anim = null;
-  function kur() { items.forEach(d => d.remove()); M = menuOgeleri(); ADIM = 360 / M.length; items = M.map((m, i) => { const d = document.createElement('div'); d.className = 'item'; d.style.setProperty('--c', m.renk); d.textContent = m.ikon; d.dataset.i = i; el.appendChild(d); return d; }); yerlestir(); }
-  function olc() { const w = el.clientWidth; R = Math.max(190, w * 0.62); cx = w / 2; cy = 62 + R; arc.style.width = arc.style.height = (2 * R + 40) + 'px'; arc.style.top = '32px'; yerlestir(); }
-  const norm = a => ((a % 360) + 540) % 360 - 180;
-  function yerlestir() {
-    let en = 0, az = 999;
-    items.forEach((d, i) => { const a = norm(i * ADIM + rot), rad = a * Math.PI / 180, yak = Math.max(0, 1 - Math.abs(a) / 80);
-      d.style.transform = `translate(${cx + R * Math.sin(rad)}px,${cy - R * Math.cos(rad)}px) scale(${0.62 + 0.48 * yak * yak})`;
-      d.style.opacity = Math.abs(a) > 85 ? 0 : 0.35 + 0.65 * yak; d.style.zIndex = Math.round(yak * 10);
-      if (Math.abs(a) < az) { az = Math.abs(a); en = i; } });
-    if (M[en]) { lbl.textContent = M[en].ad; lbl.style.color = az < 4 ? 'var(--text)' : 'var(--mut)'; }
-  }
-  function git(h) { cancelAnimationFrame(anim); const f = () => { rot += (h - rot) * 0.18; if (Math.abs(h - rot) < 0.08) { rot = h; yerlestir(); return; } yerlestir(); anim = requestAnimationFrame(f); }; anim = requestAnimationFrame(f); }
-  const secili = () => ((Math.round(-rot / ADIM) % M.length) + M.length) % M.length;
-  el.addEventListener('pointerdown', e => { if (!e.target.closest('.item,.arc')) return; sur = { x: e.clientX, y: e.clientY, r: rot, hiz: 0, lx: e.clientX, lt: performance.now(), hedef: e.target.closest('.item'), dikey: false }; cancelAnimationFrame(anim); el.setPointerCapture(e.pointerId); });
-  el.addEventListener('pointermove', e => {
-    if (!sur) return; const dx = e.clientX - sur.x, dy = e.clientY - sur.y;
-    if (!sur.yatay && dy < -30 && Math.abs(dy) > Math.abs(dx) * 1.3) { sur = null; Petek.ac(); return; }
-    if (Math.abs(dx) > 6) sur.yatay = true;
-    const now = performance.now(); sur.hiz = (e.clientX - sur.lx) / Math.max(1, now - sur.lt); sur.lx = e.clientX; sur.lt = now;
-    rot = sur.r + dx * (90 / R) * 0.9; yerlestir();
-  });
-  const bitir = e => {
-    if (!sur) return; const s = sur; sur = null; const dx = Math.abs(e.clientX - s.x);
-    if (dx < 6 && Math.abs(e.clientY - s.y) < 6) { // dokunma
-      if (s.hedef) { const i = +s.hedef.dataset.i; const fark = norm(i * ADIM + rot); git(rot - fark); setTimeout(() => UI.bolum(M[i].id), Math.abs(fark) > 3 ? 260 : 0); }
-      else Petek.ac();
-      return;
-    }
-    git(Math.round((rot + s.hiz * 160 * (90 / R)) / ADIM) * ADIM); // sadece döner, açmaz
-  };
-  el.addEventListener('pointerup', bitir); el.addEventListener('pointercancel', bitir);
-  window.addEventListener('resize', olc); kur(); olc();
-  return { kur, anaya: () => git(Math.round(rot / 360) * 360) };
-})();
+const Dial = { kur() { Petek.kume(); }, anaya() { } };
 
 /* ---------- Apple Watch tarzı uygulama küresi (petek) ---------- */
 const Petek = (() => {
@@ -388,9 +351,19 @@ const Petek = (() => {
   };
   el.addEventListener('pointerup', bitir); el.addEventListener('pointercancel', bitir);
   function ac() { kur(); px = 0; py = 0; vx = vy = 0; el.classList.add('on'); requestAnimationFrame(() => { ciz(); bubs.forEach((b, i) => b.animate([{ transform: b.style.transform + ' scale(.2)', opacity: 0 }, { transform: b.style.transform, opacity: b.style.opacity }], { duration: 500, delay: 80 + Math.hypot(...pos[i]) * 0.8, easing: 'cubic-bezier(.2,.9,.3,1.2)', fill: 'backwards' })); }); }
-  function kapat() { el.classList.remove('on'); }
+  function kapat() { el.classList.remove('on'); el.style.transform = ''; }
   window.addEventListener('resize', () => el.classList.contains('on') && ciz());
-  return { ac, kapat };
+  /* alt tutamak: renkli mini petek; dokun ya da yukarı çek */
+  const tut = $('#tutamak'), kumeEl = $('#kume');
+  function kume() { const m = menuOgeleri().filter(x => x.id !== 'ana' && x.id !== 'ekle').slice(0, 7); const p = [[0, 0], [12, 0], [-12, 0], [6, -10], [-6, -10], [6, 10], [-6, 10]]; kumeEl.innerHTML = m.map((x, i) => `<i style="left:${26 + p[i][0]}px;top:${15 + p[i][1]}px;background:${x.renk};color:${x.renk};animation-delay:${i * .25}s"></i>`).join(''); }
+  let cek = null;
+  tut.addEventListener('pointerdown', e => { cek = { y: e.clientY, t: performance.now() }; tut.setPointerCapture(e.pointerId); kur(); px = py = 0; el.style.transition = 'none'; el.style.visibility = 'visible'; el.style.transform = 'translateY(100%)'; ciz(); });
+  tut.addEventListener('pointermove', e => { if (!cek) return; const dy = Math.min(0, e.clientY - cek.y); el.style.transform = `translateY(${el.clientHeight + dy * 1.15}px)`; });
+  const birak2 = e => { if (!cek) return; const dy = e.clientY - cek.y, hiz = dy / Math.max(1, performance.now() - cek.t); cek = null; el.style.transition = ''; el.style.visibility = '';
+    if (Math.abs(dy) < 6 || dy < -70 || hiz < -0.5) { el.classList.add('on'); el.style.transform = ''; requestAnimationFrame(ciz); } else { el.style.transform = ''; } };
+  tut.addEventListener('pointerup', birak2); tut.addEventListener('pointercancel', birak2);
+  kume();
+  return { ac, kapat, kume };
 })();
 
 /* ---------- alt pencereler ---------- */

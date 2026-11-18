@@ -18,13 +18,13 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,sans-serif;overscroll-behavior-y:none}
-body{padding-top:env(safe-area-inset-top)}
-main{max-width:520px;margin:0 auto;padding:6px 14px calc(var(--dial-h) + env(safe-area-inset-bottom) + 20px)}
+body{padding-top:max(env(safe-area-inset-top),12px);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+main{max-width:520px;margin:0 auto;padding:4px 14px calc(66px + env(safe-area-inset-bottom))}
 .mut{color:var(--mut)}.small{font-size:12px}
 .row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.grow{flex:1;min-width:0}
 
 /* üst bar */
-.top{display:flex;align-items:flex-end;justify-content:space-between;max-width:520px;margin:0 auto;padding:14px 16px 8px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;max-width:520px;margin:0 auto;padding:8px 16px 8px}
 .top .tarih{color:var(--mut);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
 .top h1{margin:2px 0 0;font-size:30px;font-weight:800;letter-spacing:-.6px}
 .top .sag{display:flex;gap:8px;align-items:center}
@@ -146,11 +146,11 @@ main{max-width:520px;margin:0 auto;padding:6px 14px calc(var(--dial-h) + env(saf
 .stack .ly2{transform:translateY(-14px) scale(.86);opacity:.35}
 .stack .ly1{transform:translateY(-7px) scale(.93);opacity:.6}
 .stack .ust{position:absolute;inset:0;border-radius:16px;background:linear-gradient(160deg,#28282f,#18181c);padding:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.5)}
-.ov{position:fixed;inset:0;z-index:15;background:rgba(0,0,0,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:auto;padding:calc(60px + env(safe-area-inset-top)) 14px 40px;opacity:0;transition:opacity .3s}
+.ov{position:fixed;inset:0;z-index:15;background:rgba(0,0,0,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:auto;padding:calc(60px + max(env(safe-area-inset-top),12px)) 14px calc(30px + env(safe-area-inset-bottom));opacity:0;transition:opacity .3s}
 .ov.on{opacity:1}
 .ov .grid{max-width:492px;margin:0 auto}
 .ov .w{transform-origin:50% 0}
-.ov .kapat{position:fixed;top:calc(12px + env(safe-area-inset-top));right:16px}
+.ov .kapat{position:fixed;top:calc(10px + max(env(safe-area-inset-top),12px));right:16px}
 
 /* düzenleme modu */
 .duzenle-modu .w{animation:wob .28s ease-in-out infinite alternate}
@@ -177,12 +177,21 @@ main{max-width:520px;margin:0 auto;padding:6px 14px calc(var(--dial-h) + env(saf
 .dial .lbl{position:absolute;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));text-align:center;font-size:12px;font-weight:700;letter-spacing:.3px;color:var(--mut);pointer-events:none;text-transform:uppercase}
 .dial .hint{position:absolute;left:0;right:0;top:40px;text-align:center;font-size:10px;color:#4a4a52;pointer-events:none;letter-spacing:.3px}
 
+/* alt tutamak: küçük renkli petek kümesi, yukarı çek → uygulama küresi */
+.tutfade{position:fixed;left:0;right:0;bottom:0;height:calc(54px + env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(0,0,0,.92),transparent);pointer-events:none;z-index:5}
+.tutamak{position:fixed;left:50%;bottom:calc(6px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:6;width:86px;height:44px;border-radius:22px;background:rgba(40,40,46,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 6px 24px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);touch-action:none;cursor:pointer;display:grid;place-items:center}
+.tutamak:active{transform:translateX(-50%) scale(.94)}
+.kume{position:relative;width:52px;height:30px}
+.kume i{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;box-shadow:0 0 6px currentColor;animation:nefes 3s ease-in-out infinite}
+@keyframes nefes{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.duzenle-modu .tutamak,.duzenle-modu .tutfade{display:none}
+
 /* petek (Apple Watch uygulama küresi) */
 .petek{position:fixed;inset:0;z-index:12;background:radial-gradient(circle at 50% 45%,#15151c,#000 70%);transform:translateY(100%);transition:transform .45s cubic-bezier(.2,.85,.2,1),visibility 0s .45s;visibility:hidden;touch-action:none;overflow:hidden}
 .petek.on{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.2,.85,.2,1)}
 .petek .bub{position:absolute;left:0;top:0;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;display:grid;place-items:center;font-size:33px;will-change:transform;color:#fff;background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 92%,#fff),color-mix(in srgb,var(--c) 50%,#000));box-shadow:0 8px 24px color-mix(in srgb,var(--c) 30%,transparent)}
 .petek .bub.ekle{background:radial-gradient(circle at 30% 25%,#55555e,#1e1e24);font-size:38px;font-weight:300}
-.petek .pad{position:absolute;left:0;right:0;top:0;padding:calc(14px + env(safe-area-inset-top)) 0 18px;text-align:center;z-index:2;background:linear-gradient(#000 40%,transparent)}
+.petek .pad{position:absolute;left:0;right:0;top:0;padding:calc(10px + max(env(safe-area-inset-top),12px)) 0 18px;text-align:center;z-index:2;background:linear-gradient(#000 40%,transparent)}
 .petek .grab{width:42px;height:5px;border-radius:9px;background:#444;margin:0 auto 10px}
 .petek .pad div{font-size:12px;color:var(--mut);font-weight:600}
 .petek .ad{position:absolute;left:0;right:0;bottom:calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:18px;font-weight:800;letter-spacing:-.3px;pointer-events:none;z-index:2}
@@ -190,7 +199,7 @@ main{max-width:520px;margin:0 auto;padding:6px 14px calc(var(--dial-h) + env(saf
 /* alt pencere */
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:20;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .sheet-bg.on{opacity:1;pointer-events:auto}
-.sheet{background:#1a1a1f;border-radius:26px 26px 0 0;width:100%;max-width:520px;max-height:90vh;overflow:auto;padding:10px 18px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.sheet{background:#1a1a1f;border-radius:26px 26px 0 0;width:100%;max-width:520px;max-height:calc(100dvh - max(env(safe-area-inset-top),12px) - 12px);overflow:auto;padding:10px 18px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .sheet-bg.on .sheet{transform:none}
 .sheet .grab{width:38px;height:5px;border-radius:9px;background:#3a3a42;margin:0 auto 14px}
 .sheet h3{margin:0 0 6px;font-size:22px;font-weight:800;letter-spacing:-.4px}
@@ -206,7 +215,7 @@ textarea{min-height:76px;resize:vertical}
 .renkler button.on{border-color:#fff}
 .gal{background:#0e0e11;border-radius:18px;padding:12px;margin:8px 0 4px}
 .gal .grid{pointer-events:none}
-.toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translate(-50%,-140%);background:#2a2a30;padding:11px 18px;border-radius:99px;z-index:40;transition:transform .35s cubic-bezier(.2,.8,.2,1);font-size:14px;font-weight:600;white-space:nowrap}
+.toast{position:fixed;left:50%;top:calc(8px + max(env(safe-area-inset-top),12px));transform:translate(-50%,-300%);background:#2a2a30;padding:11px 18px;border-radius:99px;z-index:40;transition:transform .35s cubic-bezier(.2,.8,.2,1);font-size:14px;font-weight:600;white-space:nowrap}
 .toast.on{transform:translate(-50%,0)}
 .empty{color:var(--mut);text-align:center;padding:8px 0;font-size:13px}
 </style>
@@ -222,7 +231,7 @@ textarea{min-height:76px;resize:vertical}
   </div>
 </div>
 <main id="main"></main>
-<div class="dial" id="dial"><div class="fade"></div><div class="arc" id="arc"></div><div class="hint">⌃ tüm uygulamalar</div><div class="lbl" id="dlbl">Ana Ekran</div></div>
+<div class="tutfade"></div><div class="tutamak" id="tutamak" aria-label="Uygulamalar"><div class="kume" id="kume"></div></div>
 <div class="petek" id="petek"><div class="pad" id="petekpad"><div class="grab"></div><div>Uygulamalar · kapatmak için aşağı kaydır</div></div><div class="ad" id="petekad"></div></div>
 <div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
