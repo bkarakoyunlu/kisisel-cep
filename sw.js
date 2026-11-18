@@ -1,5 +1,5 @@
 // Uygulama kabuğunu önbelleğe alır: önce ağ, ağ yoksa önbellek. Veri (api.github.com) asla önbelleğe alınmaz.
-const C = 'blacksheep-v11';
+const C = 'blacksheep-v12';
 const KABUK = ['./', 'index.html', 'core.js', 'app.js', 'ui-ek.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(KABUK))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k))))); self.clients.claim(); });

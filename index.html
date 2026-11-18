@@ -196,7 +196,8 @@ main{max-width:520px;margin:0 auto;padding:4px 14px calc(66px + env(safe-area-in
 .tutfade{position:fixed;left:0;right:0;bottom:0;height:calc(54px + env(safe-area-inset-bottom));background:var(--fade);pointer-events:none;z-index:5}
 .tutamak{position:fixed;left:50%;bottom:calc(6px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:6;width:86px;height:44px;border-radius:22px;background:var(--bar2);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 6px 24px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);touch-action:none;cursor:pointer;display:grid;place-items:center}
 .tutamak:active{transform:translateX(-50%) scale(.94)}
-.kume{position:relative;width:52px;height:30px}
+.kume{position:relative;width:46px;height:38px;display:grid;place-items:center}
+.kume .yun{animation:nefes 3.2s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(255,106,193,.45))}
 .kume i{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;box-shadow:0 0 6px currentColor;animation:nefes 3s ease-in-out infinite}
 @keyframes nefes{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 .duzenle-modu .tutamak,.duzenle-modu .tutfade{display:none}

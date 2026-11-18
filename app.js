@@ -368,7 +368,10 @@ const Petek = (() => {
   window.addEventListener('resize', () => el.classList.contains('on') && ciz());
   /* alt tutamak: renkli mini petek; dokun ya da yukarı çek */
   const tut = $('#tutamak'), kumeEl = $('#kume');
-  function kume() { const m = menuOgeleri().filter(x => x.id !== 'ana' && x.id !== 'ekle').slice(0, 7); const p = [[0, 0], [12, 0], [-12, 0], [6, -10], [-6, -10], [6, 10], [-6, 10]]; kumeEl.innerHTML = m.map((x, i) => `<i style="left:${26 + p[i][0]}px;top:${15 + p[i][1]}px;background:${x.renk};color:${x.renk};animation-delay:${i * .25}s"></i>`).join(''); }
+  function kume() { // logodaki koyunun yünü (kafa ve ayaklar olmadan)
+    const B = [[400, 520, 105], [500, 455, 110], [625, 455, 110], [730, 525, 105], [745, 630, 100], [640, 690, 105], [515, 695, 105], [405, 630, 100], [570, 575, 170]];
+    const P = ['#ff2d6f', '#ff9500', '#ffd60a', '#9cff2e', '#19e6ff', '#0a84ff', '#bf5af2', '#ff3b30', '#ff6ac1'];
+    kumeEl.innerHTML = `<svg viewBox="280 330 580 480" width="46" height="38" class="yun">${B.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#fff" stroke-width="18"/>`).join('')}${B.map(([x, y, r], i) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${P[i]}"/>`).join('')}</svg>`; }
   let cek = null;
   tut.addEventListener('pointerdown', e => { cek = { y: e.clientY, t: performance.now() }; tut.setPointerCapture(e.pointerId); kur(); px = py = 0; el.style.transition = 'none'; el.style.visibility = 'visible'; el.style.transform = 'translateY(100%)'; ciz(); });
   tut.addEventListener('pointermove', e => { if (!cek) return; const dy = Math.min(0, e.clientY - cek.y); el.style.transform = `translateY(${el.clientHeight + dy * 1.15}px)`; });
