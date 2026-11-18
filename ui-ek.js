@@ -244,7 +244,7 @@ function kutla(h, tur) {
 UI.ayarlar = function () {
   const c = AYAR.cihaz || cihazTahmin();
   const seg = (k, ops) => `<div class="seg2" data-ayar="${k}">${ops.map(([v, a]) => `<button class="${AYAR[k] === v ? 'on' : ''}" data-v="${v}">${a}</button>`).join('')}</div>`;
-  sheet(`<h3>Ayarlar <span class="mut small" style="font-weight:600">sürüm 10</span></h3>
+  sheet(`<h3>Ayarlar <span class="mut small" style="font-weight:600">sürüm 11</span></h3>
     <div class="grp"><div class="grp-b">Profil</div><div class="hucre"><span>Adın</span><input id="s_ad" value="${esc(AYAR.ad)}" placeholder="İsteğe bağlı" style="max-width:180px;text-align:right;background:none;border:0;padding:4px"></div></div>
     <div class="grp"><div class="grp-b">Görünüm</div>
       <div class="hucre col"><span>Tema</span>${seg('tema', [['oto', 'Otomatik'], ['acik', 'Açık'], ['koyu', 'Koyu']])}</div>
